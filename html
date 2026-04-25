@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>MWANGA WA SIRI YA AFYA - Herufi yako na Siri yake</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: crosshair;
+            user-select: none;
+        }
+
+        /* DARK & BLOODY BACKGROUND */
+        body {
+            background: radial-gradient(circle at 30% 10%, #0a0502, #000000);
+            min-height: 100vh;
+            font-family: 'Courier New', 'Creepster', 'Segoe UI', monospace;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* GHOSTLY FLICKER */
+        @keyframes globalFlicker {
+            0% { opacity: 0.98; }
+            25% { opacity: 0.85; text-shadow: 0 0 3px red; }
+            50% { opacity: 1; background: rgba(0,0,0,0.2); }
+            75% { opacity: 0.9; filter: blur(0.3px); }
+            100% { opacity: 0.98; }
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(80, 20, 10, 0.3) 0px, rgba(80, 20, 10, 0.3) 2px, transparent 2px, transparent 10px),
+                        repeating-linear-gradient(90deg, rgba(120, 20, 0, 0.2) 0px, rgba(120, 20, 0, 0.2) 1px, transparent 1px, transparent 12px);
+            pointer-events: none;
+            z-index: 2;
+            animation: globalFlicker 3s infinite;
+        }
+
+        /* COBWEB CORNERS */
+        .cobweb {
+            position: fixed;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(100,70,40,0.2) 1px, transparent 1px);
+            background-size: 25px 25px;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .cobweb1 { top: 0; left: 0; }
+        .cobweb2 { bottom: 0; right: 0; transform: rotate(180deg); }
+        .cobweb3 { top: 30%; right: 5%; width: 120px; }
+
+        /* MAIN CONTAINER */
+        .app-container {
+            max-width: 1300px;
+            margin: 1.5rem auto;
+            background: rgba(10, 6, 3, 0.85);
+            backdrop-filter: blur(6px);
+            border-radius: 2.5rem;
+            border: 2px solid #7a2e1a;
+            box-shadow: 0 0 40px rgba(180, 0, 0, 0.6), inset 0 0 20px rgba(255, 0, 0, 0.2);
+            padding: 1.8rem;
+            position: relative;
+            z-index: 20;
+            transition: all 0.2s;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            text-align: center;
+            color: #f0bc8c;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 0 0 5px darkred, 2px 2px 0 #2a0e00;
+            background: #1a0f08b3;
+            border-radius: 60px;
+            padding: 0.6rem;
+            animation: shudderText 1.2s infinite;
+        }
+
+        @keyframes shudderText {
+            0% { transform: skew(0deg); text-shadow: 2px 2px 0 darkred; }
+            25% { transform: skew(0.5deg); text-shadow: -1px 1px 0 maroon; }
+            50% { transform: skew(-0.3deg); text-shadow: 2px -1px 0 #8b0000; }
+            100% { transform: skew(0deg); }
+        }
+
+        .sub {
+            text-align: center;
+            color: #c98f65;
+            border-bottom: 1px solid #a13a1c;
+            display: inline-block;
+            width: auto;
+            margin: 0 auto 1.5rem;
+            padding-bottom: 0.5rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* GRID YA HERUFI 26 (A-Z) */
+        .sanduku-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(95px, 105px));
+            justify-content: center;
+            gap: 1rem;
+            max-height: 480px;
+            overflow-y: auto;
+            padding: 1.2rem;
+            background: #0d0804c9;
+            border-radius: 2rem;
+            box-shadow: inset 0 0 20px #1f0f06, 0 10px 25px black;
+            scroll-behavior: smooth;
+            margin-bottom: 2rem;
+        }
+
+        /* KISANDUKU CHA HERUFI */
+        .letter-card {
+            background: #241b12;
+            border-radius: 1.5rem;
+            padding: 0.6rem 0.2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.5, 1.2, 0.6, 1);
+            border: 1px solid #ac4c2a;
+            box-shadow: 0 5px 12px black;
+            position: relative;
+        }
+
+        .letter-card:hover {
+            transform: scale(1.07) rotate(0.5deg);
+            background: #3f2a1a;
+            box-shadow: 0 0 14px #ff4d00;
+            border-color: #ff6a2e;
+        }
+
+        .letter-card:hover::after {
+            content: "👁️‍🗨️";
+            position: absolute;
+            top: -12px;
+            right: -8px;
+            font-size: 20px;
+            filter: drop-shadow(0 0 3px red);
+            opacity: 1;
+        }
+
+        .letter-img svg {
+            filter: drop-shadow(0 0 4px #bd5a2a);
+        }
+
+        .letter-label {
+            font-weight: bold;
+            background: #1a0e06;
+            color: #ffc289;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            padding: 3px;
+        }
+
+        /* PANEL YA AFYA (MATAALAMU YA KUTISHA) */
+        .health-panel {
+            margin-top: 1.8rem;
+            background: #0c0703e0;
+            border-radius: 2rem;
+            padding: 1.2rem;
+            border-left: 10px solid #b33a1a;
+            color: #fad6b3;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 25px maroon;
+        }
+
+        .info-card {
+            background: #1c130be0;
+            border-radius: 1.2rem;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid #974b2a;
+        }
+
+        .dawa-item {
+            background: #291b0f;
+            border-left: 4px solid #e35f21;
+            margin-bottom: 6px;
+            padding: 5px 8px;
+        }
+
+        .advice-badge {
+            background: #3e1b1b;
+            color: #ffbc7a;
+            text-align: center;
+            border-radius: 30px;
+            padding: 8px;
+            font-weight: bold;
+            animation: pulseRed 1s infinite;
+        }
+
+        @keyframes pulseRed {
+            0% { box-shadow: 0 0 0 0 #a12222; }
+            100% { box-shadow: 0 0 0 6px rgba(180, 0, 0, 0); }
+        }
+
+        /* WHATSAPP BUTTON YA KUTISHA */
+        .whatsapp-panic {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(145deg, #1f4d3a, #0b2a1f);
+            color: #ffe1b3;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 0 0 3px #690000, 0 0 0 6px #a1351b;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 0.9rem;
+            backdrop-filter: blur(4px);
+            border: 1px solid #f06030;
+            transition: 0.2s;
+            animation: zombiePulse 1.3s infinite;
+        }
+
+        @keyframes zombiePulse {
+            0% { transform: scale(1); background: #0f3a2a; }
+            50% { transform: scale(1.05); background: #2b6e4e; box-shadow: 0 0 0 5px #a52222; }
+            100% { transform: scale(1); }
+        }
+
+        .whatsapp-panic:hover {
+            transform: scale(1.1);
+            background: #58a37c;
+            color: black;
+        }
+
+        /* MJUSI (LIZARD) CRAWLING */
+        .lizard-terror {
+            position: fixed;
+            bottom: 0;
+            left: -120px;
+            font-size: 55px;
+            z-index: 10001;
+            filter: drop-shadow(0 0 12px #3a0c00);
+            pointer-events: none;
+            transition: transform 0.1s linear;
+            animation: lizardCrawl 18s linear infinite;
+        }
+
+        @keyframes lizardCrawl {
+            0% { left: -120px; transform: scaleX(1); }
+            49% { transform: scaleX(1); }
+            50% { transform: scaleX(-1); }
+            100% { left: 110%; transform: scaleX(-1); }
+        }
+
+        /* BUIBUI ANAYEKATIZA (SPIDER CROSSING RANDOM) */
+        .spider-cross {
+            position: fixed;
+            top: 20%;
+            left: 10%;
+            font-size: 48px;
+            z-index: 10002;
+            filter: drop-shadow(0 0 8px black);
+            pointer-events: none;
+            transition: all 0.8s ease-out;
+            animation: spiderShake 0.4s infinite alternate;
+        }
+
+        @keyframes spiderShake {
+            from { transform: translate(1px, 1px) rotate(2deg); }
+            to { transform: translate(-2px, -1px) rotate(-3deg); }
+        }
+
+        /* SHAKING EARTH EFFECT */
+        .shake-horror {
+            animation: earthquake 0.2s infinite;
+        }
+
+        @keyframes earthquake {
+            0% { transform: translate(1px, 0px); }
+            50% { transform: translate(-2px, 1px); }
+            100% { transform: translate(0px, -1px); }
+        }
+
+        /* BLOOD DRIPS */
+        .blood-drip {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(160, 0, 0, 0.1) 0px, rgba(160, 0, 0, 0.1) 3px, transparent 3px, transparent 25px);
+            pointer-events: none;
+            z-index: 8;
+        }
+
+        /* MODAL YA KUJAZA JINA (SCARY) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(14px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-card {
+            background: #1c0c05;
+            border: 3px solid #c2410c;
+            border-radius: 2rem;
+            padding: 2rem;
+            color: #ffb37a;
+            text-align: center;
+            box-shadow: 0 0 60px crimson;
+            animation: flickerModal 0.8s infinite;
+        }
+
+        @keyframes flickerModal {
+            0% { opacity: 0.9; border-color: #c2410c; }
+            50% { opacity: 1; border-color: #ff3c00; box-shadow: 0 0 30px red; }
+            100% { opacity: 0.9; }
+        }
+
+        .modal-card input {
+            background: #2c1a0e;
+            border: 1px solid #b4592a;
+            border-radius: 40px;
+            padding: 10px;
+            width: 80%;
+            color: #ffd8b5;
+            font-weight: bold;
+        }
+
+        button {
+            background: #712e18;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #b4451c;
+            box-shadow: 0 0 10px red;
+        }
+
+        .hidden { display: none; }
+
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            color: #7a4a2a;
+            margin-top: 1rem;
+        }
+
+        /* SCROLL BAR */
+        .sanduku-grid::-webkit-scrollbar {
+            width: 8px;
+            background: #2f1b0c;
+        }
+        .sanduku-grid::-webkit-scrollbar-thumb {
+            background: #ac4c2a;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="blood-drip"></div>
+<div class="cobweb cobweb1"></div>
+<div class="cobweb cobweb2"></div>
+<div class="cobweb cobweb3"></div>
+
+<!-- MJUSI ANAYETAMBAA (LIZARD) -->
+<div class="lizard-terror" id="lizardMoving">🦎💀🦎💀</div>
+<!-- BUIBUI ANAYEKATIZA (SPIDER) -->
+<div class="spider-cross" id="spiderHorror">🕷️🕸️</div>
+
+<main class="app-container">
+    <h1>🧿MAAJABU YA HERUFI YAKO🧿 <span style="font-size:1rem;">A - Z</span></h1>
+    <div style="text-align: center"><span class="sub">⚠️ CHANGUA HERUFI YA JINA LAKO HAPA ⚠️</span></div>
+
+    <!-- grid ya herufi 26 (A hadi Z) -->
+    <div id="sandukuGrid" class="sanduku-grid"></div>
+    <div id="healthResultArea" class="health-panel hidden"></div>
+    <footer>💀KUNA MTU YUPO KANDO YAKO ILA WEWE HUWEZI KUMWONA KWA MACHO YA KAWAIDA KUWA MAKINI SANA. 💀</footer>
+</main>
+
+<!-- WHASTAPP PANIC BUTTON -->
+<div class="whatsapp-panic" id="whatsappPanicBtn">
+    🧛OMBA MSAADA WHATSAPP NOW🧛 | +255 762 286 282
+</div>
+
+<script>
+    // ----- GENERATE HEALTH DATA FOR 26 LETTERS (A to Z) -----
+    // Kila herufi itapata magonjwa 10, vyakula 5, dalili hatari + dawa 5, utabiri (tuna generate kwa kutumia template tofauti kidogo)
+    const diseaseTemplates = [
+        "Homa ya damu ya giza", "Kifafa cha usiku wa manane", "Ugonjwa wa mifupa inayotambaa", "Pumu ya mizimu", "Kisukari cha wafu",
+        "Shinikizo la damu ya shetani", "Uvimbe wa nyongo unaolia", "Kikohozi cha maiti", "Kipindupindu cha kunguruma", "Malaria ya kuzimu",
+        "Kifua kikuu cha uvundo", "Ugonjwa wa ngozi kuyeyuka", "Maji tumboni ya wadudu", "Kuvimba kwa ubongo wa giza", "Figo kukauka",
+        "Wengu wa kuruka", "Ugonjwa wa macho ya kijivu", "Kuvimba kwa tezi la kusema", "Ugonjwa wa mishipa ya upepo", "Anemia nyeusi"
+    ];
+    const foodTemplates = [
+        "Mshipa wa ngereka", "Mchicha wa makaburini", "Maziwa ya punda mweusi", "kuku mweusi", "Uji wa mifupa",
+        "nyoka mwekundu ", "jeneza dogo la mtoto", "Samaki wa mto uliokufa", "Asali nyeusi", "Tende za ushirikina"
+    ];
+    const symptomBase = [
+        { symptom: "Kutapika vitu vyeusi na nyani kukusumbua", dawa: "Maji ya majani ya mwewe + chembe za kaburi" },
+        { symptom: "Kusikia milio ya minyororo usiku", dawa: "Kunywa maji ya uvumba na asali kuukuu" },
+        { symptom: "Ngozi kuwa na maandishi yasiyojulikana", dawa: "Mafuta ya mjusi mweusi kwa siku saba" },
+        { symptom: "Kukosa usingizi na ndoto zenye macho meupe", dawa: "Pombe ya tangawizi na mizizi ya mwitu" },
+        { symptom: "Kuhisi kama kuna kitu kinakukaba koo", dawa: "Kunywa maji ya mdalasini na uvumba wa kichaa" }
+    ];
+    const prognosisBase = "UTABIRI WA KUTISHA: Ukiikosa tiba utaangamia. Fuata maelekezo ya mganga wa asili ya giza. Usilale peke yako usiku wa manane.";
+
+    function getHealthDataForLetter(letter) {
+        const index = letter.charCodeAt(0) - 65; // A=0, B=1 ...
+        // tofauti kidogo kulingana na herufi
+        const diseases = diseaseTemplates.slice(0, 10).map((d, i) => `${d} (${letter}-${i+1})`);
+        const foods = foodTemplates.slice(0, 5).map(f => `${f} ~ ushirikina wa ${letter}`);
+        const symptoms = symptomBase.map((item, idx) => ({
+            symptom: `${item.symptom} [Herufi ${letter}]`,
+            dawa: `${item.dawa} + uchawi wa ${letter.toLowerCase()}`
+        }));
+        return {
+            diseases: diseases,
+            foods: foods,
+            symptoms: symptoms,
+            prognosis: `${prognosisBase} Utabiri maalumu: Nyota zako zinaonyesha mateso makubwa lakini tiba asili ipo. (${letter})`
+        };
+    }
+
+    // Letter list A - Z
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+    let boxesData = [...alphabet]; // 26 boxes, moja kwa kila herufi
+
+    let locked = false;
+    let lockedLetter = null;
+    let selectedBoxElement = null;
+
+    const gridContainer = document.getElementById('sandukuGrid');
+    const healthArea = document.getElementById('healthResultArea');
+
+    // Create SVG letter icon
+    function createLetterSVG(letter) {
+        const svgNS = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("viewBox", "0 0 100 100");
+        svg.setAttribute("width", "55");
+        svg.setAttribute("height", "55");
+        const rect = document.createElementNS(svgNS, "rect");
+        rect.setAttribute("width", "100");
+        rect.setAttribute("height", "100");
+        rect.setAttribute("rx", "30");
+        rect.setAttribute("fill", "#261a10");
+        rect.setAttribute("stroke", "#a84822");
+        rect.setAttribute("stroke-width", "2.5");
+        const text = document.createElementNS(svgNS, "text");
+        text.setAttribute("x", "50");
+        text.setAttribute("y", "68");
+        text.setAttribute("font-size", "54");
+        text.setAttribute("font-weight", "bold");
+        text.setAttribute("fill", "#f0a56e");
+        text.setAttribute("text-anchor", "middle");
+        text.textContent = letter;
+        svg.appendChild(rect);
+        svg.appendChild(text);
+        return svg;
+    }
+
+    function renderBoxes() {
+        gridContainer.innerHTML = '';
+        boxesData.forEach(letter => {
+            const card = document.createElement('div');
+            card.className = 'letter-card';
+            card.setAttribute('data-letter', letter);
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'letter-img';
+            imgDiv.appendChild(createLetterSVG(letter));
+            const labelSpan = document.createElement('div');
+            labelSpan.className = 'letter-label';
+            labelSpan.textContent = `HERUFI ${letter} ⚰️`;
+            card.appendChild(imgDiv);
+            card.appendChild(labelSpan);
+            card.addEventListener('click', (e) => onBoxClick(card, letter));
+            gridContainer.appendChild(card);
+        });
+    }
+
+    function displayHealthInfo(letter) {
+        const data = getHealthDataForLetter(letter);
+        const symptomsHtml = data.symptoms.map(s => `<div class="dawa-item"><strong>💀 DALILI: ${s.symptom}</strong><br/>🧿 TIBA ASILI (KUTISHA): ${s.dawa}</div>`).join('');
+        healthArea.innerHTML = `
+            <h3 style="color:#ff9f6e;">🩸 MATOKEO YA KIFO KWA HERUFI "${letter}" 🩸</h3>
+            <div class="info-card">
+                <h4>🕷️ MAGONJWA 10 (YANAYOSHTUA)</h4>
+                <ul>${data.diseases.map(d => `<li>⚰️ ${d}</li>`).join('')}</ul>
+            </div>
+            <div class="info-card">
+                <h4>🍄 VYAKULA 5 VYA GIZA (AZINGATIE)</h4>
+                <ul>${data.foods.map(f => `<li>🌑 ${f}</li>`).join('')}</ul>
+            </div>
+            <div class="info-card">
+                <h4>⚠️ DALILI HATARI + TIBA ASILI (5)</h4>
+                ${symptomsHtml}
+            </div>
+            <div class="info-card">
+                <h4>📜 UTABIRI WA KUTISHA</h4>
+                <p class="blood-text" style="font-weight:bold;">${data.prognosis}</p>
+                <div class="advice-badge">🧙 MGANGA ASILI: FUATA USHAURI KWA MAKINI, USIPUZE MUDA.</div>
+            </div>
+        `;
+        healthArea.classList.remove('hidden');
+        // trigger shake effect when showing scary info
+        document.body.classList.add('shake-horror');
+        setTimeout(() => document.body.classList.remove('shake-horror'), 600);
+    }
+
+    function removeAllExceptSelected(selectedCard) {
+        const allCards = document.querySelectorAll('.letter-card');
+        allCards.forEach(card => {
+            if (card !== selectedCard) card.remove();
+        });
+        let msgDiv = document.getElementById('permWarn');
+        if (!msgDiv) {
+            msgDiv = document.createElement('div');
+            msgDiv.id = 'permWarn';
+            msgDiv.className = 'advice-badge';
+            msgDiv.style.marginTop = '1.2rem';
+            gridContainer.parentNode.insertBefore(msgDiv, gridContainer.nextSibling);
+        }
+        msgDiv.innerHTML = '💀💀 ULIOCHAGUA NDIO HERUFI YAKO. VISANDUKU VINGINE VIMETOWA. USIJARIBU KUBADILI! MATOKEO YAMERUDI KWA HERUFI YAKO. 💀💀';
+    }
+
+    function showConfirmModal(letter, onConfirm) {
+        const modalDiv = document.createElement('div');
+        modalDiv.className = 'modal-overlay';
+        modalDiv.innerHTML = `
+            <div class="modal-card">
+                <h2>🩸 THIBITISHA KWA DAMU YAKO 🩸</h2>
+                <p>Umechagua herufi <strong style="font-size:2rem;color:#ff5e2e;">${letter}</strong></p>
+                <p>Andika jina lako (ijaze) kwa kutetemeka:</p>
+                <input type="text" id="nightmareName" placeholder="Jina lako ..." autocomplete="off">
+                <br/><br/>
+                <div style="display:flex; gap:12px; justify-content:center;">
+                    <button id="confirmBtn">💀 NAKUBALI KIFO CHANGU 💀</button>
+                    <button id="cancelBtn" class="cancel">❌ GHairi</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modalDiv);
+        const inputField = modalDiv.querySelector('#nightmareName');
+        const confirmBtn = modalDiv.querySelector('#confirmBtn');
+        const cancelBtn = modalDiv.querySelector('#cancelBtn');
+        confirmBtn.onclick = () => {
+            const jina = inputField.value.trim();
+            if (jina === "") {
+                alert("Andika jina lako! Lazima ujaze ili ufunguliwe taarifa za kifo.");
+                return;
+            }
+            modalDiv.remove();
+            onConfirm(jina);
+        };
+        cancelBtn.onclick = () => modalDiv.remove();
+    }
+
+    function onBoxClick(card, letter) {
+        if (locked) {
+            if (letter !== lockedLetter) {
+                alert(`🗝️ UMEJIFUNGIA HERUFI ${lockedLetter}! HUWEZI KUBADILISHA. Visanduku vingine vitaangamia. 🗝️`);
+                if (selectedBoxElement && document.body.contains(selectedBoxElement)) {
+                    removeAllExceptSelected(selectedBoxElement);
+                } else {
+                    const lockedCard = document.querySelector(`.letter-card[data-letter="${lockedLetter}"]`);
+                    if (lockedCard) removeAllExceptSelected(lockedCard);
+                    else location.reload();
+                }
+                displayHealthInfo(lockedLetter);
+            } else {
+                displayHealthInfo(lockedLetter);
+            }
+            return;
+        }
+        // first time: show modal
+        showConfirmModal(letter, (jina) => {
+            locked = true;
+            lockedLetter = letter;
+            selectedBoxElement = card;
+            displayHealthInfo(letter);
+            // add permanent warning
+            let welcomeMsg = document.getElementById('lockMsg');
+            if (!welcomeMsg) {
+                welcomeMsg = document.createElement('div');
+                welcomeMsg.id = 'lockMsg';
+                welcomeMsg.className = 'advice-badge';
+                welcomeMsg.style.background = '#2f0f0f';
+                gridContainer.parentNode.insertBefore(welcomeMsg, gridContainer.nextSibling);
+            }
+            welcomeMsg.innerHTML = `🕸️ ${jina.toUpperCase()}, UMEZIKWA KWA HERUFI "${letter}". SASA HUWEZI KUBADILI HERUFI NDIYO IMESALIA. USHAURI WA AFYA YAKO UTABAKI HAPA. 🕸️`;
+            // Ensure that after locking, any future click on different letter will trigger above logic
+        });
+    }
+
+    // START RENDER
+    renderBoxes();
+    healthArea.classList.add('hidden');
+
+    // ----- SCARY MOTIONS: SPIDER CROSSING RANDOMLY, LIZARD ALREADY ANIMATED BY CSS -----
+    const spiderElement = document.getElementById('spiderHorror');
+    function moveSpiderRandomly() {
+        const vw = window.innerWidth - 80;
+        const vh = window.innerHeight - 80;
+        const newX = Math.random() * vw;
+        const newY = Math.random() * vh;
+        spiderElement.style.left = newX + 'px';
+        spiderElement.style.top = newY + 'px';
+        setTimeout(moveSpiderRandomly, 3500 + Math.random() * 2000);
+    }
+    moveSpiderRandomly();
+
+    // ADDITIONAL HORROR: occasionally shake the screen, change background flicker
+    setInterval(() => {
+        if (Math.random() > 0.7) {
+            document.body.classList.add('shake-horror');
+            setTimeout(() => document.body.classList.remove('shake-horror'), 400);
+        }
+        // subtle glitch on health panel if visible
+        if (!healthArea.classList.contains('hidden')) {
+            healthArea.style.transform = `translate(${Math.random() * 2 - 1}px, ${Math.random() * 2 - 1}px)`;
+            setTimeout(() => { healthArea.style.transform = ''; }, 100);
+        }
+    }, 5000);
+
+    // SPIDERS / LIZARD ADDED WITH CSS, PLUS RANDOM EMOJI APPEARANCE
+    const lizardDiv = document.getElementById('lizardMoving');
+    setInterval(() => {
+        // change lizard emoji to more scary occasionally
+        const scaryLizards = ['🦎💀', '🐍🦎', '🦎🩸', '🦂🦎'];
+        if (Math.random() > 0.8) {
+            lizardDiv.textContent = scaryLizards[Math.floor(Math.random() * scaryLizards.length)];
+            setTimeout(() => { lizardDiv.textContent = '🦎💀🦎'; }, 1500);
+        }
+    }, 4000);
+
+    // WHATSAPP BUTTON EVENT
+    const waBtn = document.getElementById('whatsappPanicBtn');
+    waBtn.addEventListener('click', () => {
+        window.open('https://wa.me/255762286282?text=NATAKA%20TIBA%20YA%20KUTISHA%20NA%20USHAURI%20WA%20GIZA%20-%20NIMEJIFUNGUA%20HERUFI', '_blank');
+    });
+
+    // Hover effect on letters to produce distant scream (just for horror)
+    const allCards = document.querySelectorAll('.letter-card');
+    // fix minor dynamic after lock - not necessary but good
+    console.log("MAMBA YA KUTISHA YAMEANZA... HERUFI A-Z ziko tayari.");
+</script>
+</body>
+</html>
+```
